@@ -72,7 +72,7 @@ html(lang="en")
     link(href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet")
     link(href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css", rel="stylesheet")
     // Provided CSS
-    - css.unshift("/css/global.css")
+    - css.unshift("./css/global.css")
     each item in [...new Set(css)]
       link(href=item + "?v=" + resourceVersion, rel="stylesheet")
     +getViewExtensions("head")
