@@ -342,7 +342,7 @@ body.signed-in #placing-modal.shown, body.signed-in #place-timer.shown {
     display: block;
 }
 
-#pixel-data-ctn {
+#pixel-data-ctn{
     position: absolute;
     display: none;
     z-index: 3;
@@ -447,7 +447,7 @@ body.signed-in #placing-modal.shown, body.signed-in #place-timer.shown {
     border-radius: 50%;
 }
 
-.pixel-data:after, .pixel-data:before, #colour-picker-popover:after, #colour-picker-popover:before {
+.pixel-data:after, .pixel-data:before, #colour-picker-popover:after, #colour-picker-popover:before{
 	right: 100%;
 	top: 40px;
 	border: solid transparent;
@@ -458,7 +458,7 @@ body.signed-in #placing-modal.shown, body.signed-in #place-timer.shown {
 	pointer-events: none;
 }
 
-.pixel-data:after, #colour-picker-popover:after {
+.pixel-data:after, #colour-picker-popover:after{
 	border-color: rgba(255, 255, 255, 0);
 	border-right-color: #f8f9fd;
 	border-width: 10px;
@@ -921,6 +921,7 @@ nav.navbar {
 }
 
 .popout-btns {
+    display: none;
     margin-bottom: 5px;
 }
 
@@ -1498,4 +1499,49 @@ body .button-ctn, body #popout-container {
 
 #confettiCanvas {
     pointer-events: none;
+}
+
+#place-login{
+    position: fixed;
+    bottom: 100px;
+    right: 100px;
+    z-index: 100;
+}
+#message-dialog {
+    position: absolute;
+    display: none;
+    z-index: 3;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,0);
+    margin-top: 40px;
+}
+.message-container{
+    min-width: 300px;
+    padding: 14px 24px;
+    box-sizing: border-box;
+    position: relative;
+    border-radius: 4px;
+    background: #f8f9fd;
+    box-shadow: 0 5px 20px 3px rgba(0,0,0,.2);
+}
+.message-title{
+    margin-bottom: 10px;
+}
+.message-input{
+    width: 100%;
+    min-height: 100px;
+    border-color: #efefef;
+}
+.message-input:focus{
+    border-color: #efefef;
+    outline: none;
+}
+.message-send{
+    margin-top: 10px;
+    display: flex;    
+    justify-content: flex-end;
+}
+.message-send .btn{
+    margin-left: 5px;
 }

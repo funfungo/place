@@ -144,7 +144,7 @@ function PaintingManager(app) {
             } : null;
         },
 
-        doPaint: function(colour, x, y, user) {
+        doPaint: function(colour, x, y, user,message) {
             var a = this;
             return new Promise((resolve, reject) => {
                 if (!this.hasImage) return reject({message: "Our servers are currently getting ready. Please try again in a moment.", code: "not_ready"});
@@ -165,7 +165,7 @@ function PaintingManager(app) {
                     app.userActivityController.recordActivity(user);
                     app.leaderboardManager.needsUpdating = true;
                     resolve();
-                });
+                },message);
             });
         },
 

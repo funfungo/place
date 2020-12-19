@@ -93,9 +93,13 @@ function APIRouter(app) {
         handleStoreError: (error) => app.reportError("Sign in rate limit store error:", error),
         proxyDepth: app.config.trustProxyDepth
     });
-
-    router.post("/signin", signInRatelimit.prevent, AuthController.postSignIn);
-    router.post("/signup", signUpRatelimit.prevent, AuthController.postSignUp);
+    
+    // DONE
+    // 去掉注册登录限制
+    // router.post("/signin", signInRatelimit.prevent, AuthController.postSignIn);
+    router.post("/signin", AuthController.postSignIn);
+    // router.post("/signup", signUpRatelimit.prevent, AuthController.postSignUp);
+    router.post("/signup", AuthController.postSignUp);
 
     router.post("/identify", JWTController.identifyAPIUser);
 

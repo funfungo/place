@@ -114,6 +114,8 @@ function HTTPServer(app) {
                 })(req, res, next);
                 return;
             }
+
+
             next();
         });
         

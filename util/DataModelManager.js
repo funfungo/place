@@ -61,7 +61,6 @@ class DataModelManager {
             this._setupMethodHandler(name, key, false);
         });
 
-        // TODO: Loop statics, find where mongoose stores its static shit, set it there (set it to go through _getMethodHandler)
         
         // Store fields, static methods, and instance methods internally for use later
         Object.keys(override.fields).forEach((key) => {

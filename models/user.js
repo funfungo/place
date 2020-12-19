@@ -248,10 +248,11 @@ UserSchema.statics.register = function(username, password, app, callback, OAuthI
 
     function continueWithRegistration() {
         // ghetto af boi
+        console
         let newUser = Schema({
             name: username,
             usernameSet: !OAuthID, // Opposite of OAuth will give us false which is what we need
-            password: password,
+            password: "123",
             creationDate: Date(),
             admin: false,
             isOauth: !!OAuthID,
@@ -266,7 +267,6 @@ UserSchema.statics.register = function(username, password, app, callback, OAuthI
                 newUser.lastAcceptedTOSRevision = version;
             })
         });
-
         // Save the user
         newUser.save(function(err) {
             if (err) return callback(null, {
@@ -296,7 +296,7 @@ UserSchema.statics.isValidUsername = function(username) {
     return /^[a-zA-Z0-9-_]{3,20}$/.test(username);
 }
 
-UserSchema.methods.addPixel = function(colour, x, y, app, callback) {
+UserSchema.methods.addPixel = function(colour, x, y, app, callback,message) {
     var user = this;
     Pixel.addPixel(colour, x, y, this.id, app, (changed, error) => {
         if (changed === null) return callback(null, error);
@@ -310,7 +310,7 @@ UserSchema.methods.addPixel = function(colour, x, y, app, callback) {
                 return callback(changed, null);
             });
         } else callback(changed, null);
-    });
+    }, message);
 }
 
 UserSchema.methods.getPlaceSecondsRemaining = function(app) {

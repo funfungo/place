@@ -54,7 +54,11 @@ var PixelSchema = new Schema({
             validator: colourPieceValidator,
             message: "{VALUE} is not a valid colour"
         }
-    }
+	},
+	message: {
+		type: String,
+		required: false,
+	}
 });
 
 PixelSchema.methods.toInfo = function(userIDs = true) {
@@ -64,17 +68,17 @@ PixelSchema.methods.toInfo = function(userIDs = true) {
             y: this.yPos
         },
         modified: this.lastModified,
-        colour: this.getHexColour()
+		colour: this.getHexColour(),
+		message: this.message
     };
     if (userIDs) info.editorID = this.editorID;
     return info;
 }
 
-PixelSchema.statics.addPixel = function(colour, x, y, userID, app, callback) {
+PixelSchema.statics.addPixel = function(colour, x, y, userID, app, callback, message) {
     var pn = this;
     x = parseInt(x), y = parseInt(y);
     if(isNaN(x) || isNaN(y)) return callback(null, { message: "Invalid positions provided." });
-    // TODO: Get actual position below:
     if(x < 0 || y < 0 || x >= app.config.boardSize || y >= app.config.boardSize) return callback(null, { message: "Position is out of bounds." });
     this.findOne({
         xPos: x,
@@ -83,7 +87,7 @@ PixelSchema.statics.addPixel = function(colour, x, y, userID, app, callback) {
         editorID: 1,
         colourR: 1,
         colourG: 1,
-        colourB: 1
+        colourB: 1,
     }).then((pixel) => {
         // Find the pixel at this location
         var wasIdentical = colour.r == 255 && colour.g == 255 && colour.b == 255; // set to identical if pixel was white
@@ -102,6 +106,7 @@ PixelSchema.statics.addPixel = function(colour, x, y, userID, app, callback) {
             pixel.colourR = colour.r;
             pixel.colourG = colour.g;
             pixel.colourB = colour.b;
+            pixel.message = message;
             pixel.lastModified = Date();
             // save the changes
             pixel.save().then((p) => {
