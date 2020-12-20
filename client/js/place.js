@@ -422,10 +422,19 @@ var place = {
         let touchZoom = {
             scale: 1,
             enable: false,
-            timer: null
+            timer: null,
+            startScale: 0,
         }
         // let startDistance, startZoomScale;
         interact(this.cameraController)
+            .gesturable({
+                onstart: function (event) {
+                    touchZoom.startScale = app.zooming.zoomScale;
+                },
+                onmove: function (event) {
+                    app.setZoomScale(touchZoom.startScale * event.scale);
+                }
+            })
             .draggable({
                 inertia: true,
                 restrict: {
@@ -440,8 +449,6 @@ var place = {
                 },
                 autoScroll: true,
                 onstart: (event) => {
-                    if (touchZoom.enable) return
-
                     if (event.interaction.downEvent.button == 2) return event.preventDefault();
                     app.stat();
                     $(app.zoomController).addClass("grabbing");
@@ -449,12 +456,10 @@ var place = {
 
                 },
                 onmove: (event) => {
-                    if (touchZoom.enable) return
                     app.moveCamera(event.dx, event.dy);
                     app.stat();
                 },
                 onend: (event) => {
-                    if (touchZoom.enable) return
                     if (event.interaction.downEvent.button == 2) return event.preventDefault();
                     app.stat();
                     $(app.zoomController).removeClass("grabbing");
@@ -471,43 +476,43 @@ var place = {
                 event.preventDefault();
             }).on("doubletap", (event) => {
                 event.preventDefault();
-                if (this.zooming.zoomedIn) {
-                    console.log(app.zooming);
-                    app.setZoomScale(1, true);
-                    console.log(app.zooming);
-                } else {
-                    app.setZoomScale(this.zooming.zoomedInPoint, true);
+                if (!this.zooming.zoomedIn) {
+                    // DONE 双击自动放大
+                    var cursor = app.getCanvasCursorPosition(event.pageX, event.pageY);
+                    this.zoomIntoPoint(cursor.x, cursor.y);
                 }
-            }).on("touchstart", (event) => {
-                //DONE 双指缩放
-                let touches = event.touches;
-                //双指
-                let point1 = touches[0];
-                let point2 = touches[1];
+            })
 
-                if (point2) {
-                    touchZoom.enable = true;
-                    touchZoom.pageX1 = point1.pageX;
-                    touchZoom.pageY1 = point1.pageY;
-                    touchZoom.pageX2 = point2.pageX;
-                    touchZoom.pageY2 = point2.pageY;
-                    touchZoom.startDistance = getDistance([touchZoom.pageX1, touchZoom.pageY1], [touchZoom.pageX2, touchZoom.pageY2])
-                    touchZoom.originScale = this.zooming.zoomScale;
-                }
-            }).on("touchmove", (event) => {
-                if (touchZoom.enable) {
-                    clearTimeout(touchZoom.timer);
-                    touchZoom.timer = setTimeout(() => {
-                        touchZoom.enable = false;
-                    },100);
-                    let point1 = event.touches[0];
-                    let point2 = event.touches[1];
-                    let moveDistance = getDistance([point1.pageX, point1.pageY], [point2.pageX, point2.pageY]);
-                    let moveScale = moveDistance / touchZoom.startDistance;
-                    this.setZoomScale(touchZoom.originScale * moveScale);
-                }
-            }).on("touchend", (event) => {
-            });
+        // TODO大比例缩小时会出bug
+        // .on("touchstart", (event) => {
+        //     //DONE 双指缩放
+        //     let touches = event.touches;
+        //     //双指
+        //     let point1 = touches[0];
+        //     let point2 = touches[1];
+
+        //     if (point2) {
+        //         touchZoom.enable = true;
+        //         touchZoom.pageX1 = point1.pageX;
+        //         touchZoom.pageY1 = point1.pageY;
+        //         touchZoom.pageX2 = point2.pageX;
+        //         touchZoom.pageY2 = point2.pageY;
+        //         touchZoom.startDistance = getDistance([touchZoom.pageX1, touchZoom.pageY1], [touchZoom.pageX2, touchZoom.pageY2])
+        //         touchZoom.originScale = this.zooming.zoomScale;
+        //     }
+        // }).on("touchmove", (event) => {
+        //     if (touchZoom.enable) {
+        //         clearTimeout(touchZoom.timer);
+        //         touchZoom.timer = setTimeout(() => {
+        //             touchZoom.enable = false;
+        //         },100);
+        //         let point1 = event.touches[0];
+        //         let point2 = event.touches[1];
+        //         let moveDistance = getDistance([point1.pageX, point1.pageY], [point2.pageX, point2.pageY]);
+        //         let moveScale = moveDistance / touchZoom.startDistance;
+        //         this.setZoomScale(touchZoom.originScale * moveScale);
+        //     }
+        // })
     },
 
 
