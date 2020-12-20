@@ -232,11 +232,12 @@ var place = {
         canvas.onmousemove = (event) => this.handleMouseMove(event || window.event);
         canvas.addEventListener("contextmenu", (event) => this.contextMenu(event));
 
-        var handleKeyEvents = function (e) {
-            var kc = e.keyCode || e.which;
-            app.keyStates[kc] = e.type == "keydown";
-        }
-        //去掉键盘事件
+        // DONE:去掉键盘事件
+
+        // var handleKeyEvents = function (e) {
+        //     var kc = e.keyCode || e.which;
+        //     app.keyStates[kc] = e.type == "keydown";
+        // }
         // document.body.onkeyup = function(e) {
         //     if(document.activeElement.tagName.toLowerCase() != "input") handleKeyEvents(e);
         // }
@@ -415,52 +416,100 @@ var place = {
 
     setupInteraction: function () {
         var app = this;
-        interact(this.cameraController).draggable({
-            inertia: true,
-            restrict: {
-                restriction: "parent",
-                elementRect: {
-                    top: 0.5,
-                    left: 0.5,
-                    bottom: 0.5,
-                    right: 0.5
+        let getDistance = function (start, stop) {
+            return Math.hypot(stop[0] - start[0], stop[1] - start[1]);
+        };
+        let touchZoom = {
+            scale: 1,
+            enable: false,
+            timer: null
+        }
+        // let startDistance, startZoomScale;
+        interact(this.cameraController)
+            .draggable({
+                inertia: true,
+                restrict: {
+                    restriction: "parent",
+                    elementRect: {
+                        top: 0.5,
+                        left: 0.5,
+                        bottom: 0.5,
+                        right: 0.5
+                    },
+                    endOnly: true
                 },
-                endOnly: true
-            },
-            autoScroll: true,
-            onstart: (event) => {
+                autoScroll: true,
+                onstart: (event) => {
+                    if (touchZoom.enable) return
+
+                    if (event.interaction.downEvent.button == 2) return event.preventDefault();
+                    app.stat();
+                    $(app.zoomController).addClass("grabbing");
+                    $(":focus").blur();
+
+                },
+                onmove: (event) => {
+                    if (touchZoom.enable) return
+                    app.moveCamera(event.dx, event.dy);
+                    app.stat();
+                },
+                onend: (event) => {
+                    if (touchZoom.enable) return
+                    if (event.interaction.downEvent.button == 2) return event.preventDefault();
+                    app.stat();
+                    $(app.zoomController).removeClass("grabbing");
+                    var coord = app.getCoordinates();
+                    app.hashHandler.modifyHash(coord);
+                }
+            }).on("tap", (event) => {
+                //TODO 修改点击缩放事件
                 if (event.interaction.downEvent.button == 2) return event.preventDefault();
-                app.stat();
-                $(app.zoomController).addClass("grabbing");
-                $(":focus").blur();
-            },
-            onmove: (event) => {
-                app.moveCamera(event.dx, event.dy);
-                app.stat();
-            },
-            onend: (event) => {
-                if (event.interaction.downEvent.button == 2) return event.preventDefault();
-                app.stat();
-                $(app.zoomController).removeClass("grabbing");
-                var coord = app.getCoordinates();
-                app.hashHandler.modifyHash(coord);
-            }
-        }).on("tap", (event) => {
-            if (event.interaction.downEvent.button == 2) return event.preventDefault();
-            if (!this.zooming.zooming) {
-                var cursor = app.getCanvasCursorPosition(event.pageX, event.pageY);
-                app.canvasClicked(cursor.x, cursor.y);
-            }
-            event.preventDefault();
-        }).on("doubletap", (event) => {
-            if (app.zooming.zoomedIn && this.selectedColour === null) {
-                app.zoomFinished();
-                app.shouldShowPopover = false;
-                app.setZoomScale(this.zooming.initialZoomPoint, true);
+                if (this.zooming.zoomedIn || this.selectedColour !== null) {
+                    var cursor = app.getCanvasCursorPosition(event.pageX, event.pageY);
+                    app.canvasClicked(cursor.x, cursor.y);
+                }
                 event.preventDefault();
-            }
-        });
+            }).on("doubletap", (event) => {
+                event.preventDefault();
+                if (this.zooming.zoomedIn) {
+                    console.log(app.zooming);
+                    app.setZoomScale(1, true);
+                    console.log(app.zooming);
+                } else {
+                    app.setZoomScale(this.zooming.zoomedInPoint, true);
+                }
+            }).on("touchstart", (event) => {
+                //DONE 双指缩放
+                let touches = event.touches;
+                //双指
+                let point1 = touches[0];
+                let point2 = touches[1];
+
+                if (point2) {
+                    touchZoom.enable = true;
+                    touchZoom.pageX1 = point1.pageX;
+                    touchZoom.pageY1 = point1.pageY;
+                    touchZoom.pageX2 = point2.pageX;
+                    touchZoom.pageY2 = point2.pageY;
+                    touchZoom.startDistance = getDistance([touchZoom.pageX1, touchZoom.pageY1], [touchZoom.pageX2, touchZoom.pageY2])
+                    touchZoom.originScale = this.zooming.zoomScale;
+                }
+            }).on("touchmove", (event) => {
+                if (touchZoom.enable) {
+                    clearTimeout(touchZoom.timer);
+                    touchZoom.timer = setTimeout(() => {
+                        touchZoom.enable = false;
+                    },100);
+                    let point1 = event.touches[0];
+                    let point2 = event.touches[1];
+                    let moveDistance = getDistance([point1.pageX, point1.pageY], [point2.pageX, point2.pageY]);
+                    let moveScale = moveDistance / touchZoom.startDistance;
+                    this.setZoomScale(touchZoom.originScale * moveScale);
+                }
+            }).on("touchend", (event) => {
+            });
     },
+
 
     mousewheelMoved: function (event) {
         if ($('.canvas-container:hover').length <= 0) return;
@@ -756,6 +805,16 @@ var place = {
         if (this.zooming.panToX == null) this.zooming.panToX = this.panX;
         if (this.zooming.panToY == null) this.zooming.panToY = this.panY;
         var newScale = this.normalizeZoomScale(scale);
+
+        if (newScale >= 30) {
+            $(this.grid).addClass("show");
+        } else {
+            $(this.grid).removeClass("show");
+        }
+        if (newScale >= 20) this.zooming.zoomedIn = true;
+        else {
+            this.zooming.zoomedIn = false;
+        }
         if (animated) {
             this.zooming.zoomTime = 0;
             this.zooming.zoomFrom = this._getCurrentZoom();
@@ -766,7 +825,7 @@ var place = {
             this.zooming.zoomScale = newScale;
             this.updateUIWithZoomScale(newScale);
         }
-        this.zooming.zoomedIn = newScale >= (this.zooming.initialZoomPoint + this.zooming.zoomedInPoint) / 2;
+        // this.zooming.zoomedIn = newScale >= (this.zooming.initialZoomPoint + this.zooming.zoomedInPoint) / 2;
         if (!this.zooming.zoomedIn) $(this.pixelDataPopover).hide();
         this.updateDisplayCanvas();
         this.updateGrid();
@@ -822,7 +881,7 @@ var place = {
             var app = this;
             var clipboard = new Clipboard(btn);
             $(btn).addClass("clickable").tooltip({
-                title: "Copied to clipboard!",
+                title: "已复制到剪切板",
                 trigger: "manual",
             });
             clipboard.on("success", function (e) {
@@ -1002,7 +1061,7 @@ var place = {
                 var formattedTime = `${minutes}:${padLeft(seconds.toString(), "0", 2)}`;
                 document.title = `[${formattedTime}] | ${this.originalTitle}`;
                 var shouldShowNotifyButton = !this.notificationHandler.canNotify() && this.notificationHandler.isAbleToRequestPermission();
-                $(this.placeTimer).children("span").html("You may place again in <strong>" + formattedTime + "</strong>." + (shouldShowNotifyButton ? " <a href=\"#\" id=\"notify-me\">Notify me</a>." : ""));
+                $(this.placeTimer).children("span").html("你可以在 <strong>" + formattedTime + "</strong>后继续操作." + (shouldShowNotifyButton ? " <a href=\"#\" id=\"notify-me\">Notify me</a>." : ""));
                 return;
             } else if (this.fullUnlockTime > 5) { // only notify if full countdown exceeds 5 seconds
                 this.notificationHandler.sendNotification(this.getSiteName(), "You may now place!");
@@ -1121,10 +1180,10 @@ var place = {
         // Make the user zoom in before placing pixel
         var wasZoomedOut = !this.zooming.zoomedIn;
         if (wasZoomedOut) this.zoomIntoPoint(x, y);
-
         //TODO:添加展示祝福
         if (this.selectedColour === null) {
             this.zoomIntoPoint(x, y);
+
             return this.getPixel(x, y, (err, data) => {
                 if (err || !data.pixel) return;
                 var popover = $(this.pixelDataPopover);
@@ -1177,11 +1236,12 @@ var place = {
                 }
             });
         }
+
         if (wasZoomedOut) return;
         if (this.selectedColour !== null && !this.placing) {
             this.changePlacingModalVisibility(true);
             var hex = this.getCurrentColourHex();
-            // TODO:插入输入框逻辑
+            // DONE:插入输入框逻辑
             var origin;
             this.getPixel(x, y, (err, data) => {
                 origin = data.pixel;
@@ -1569,7 +1629,7 @@ $("*[data-place-trigger]").click(function () {
     } else if (trigger == "openAuthDialog") {
         SignInDialogController.show();
     } else if (trigger == "login") {
-        //TODO 创建用户
+        //DONE 创建用户
         placeAjax.post("/api/signup", () => {}).then((data) => {
             console.log(data);
             if (data.success) {

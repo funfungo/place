@@ -2,13 +2,13 @@ module.exports = {
     "secret": "CHANGETHISDONTUSETHISITSINSECURE", // <------- CHANGE THIS DONT USE THE DEFAULT YOU'LL GET HACKED AND DIE 100%
     "database": "mongodb://localhost/place",
     "port": 3000,
-    "boardSize": 500,
-    "onlyListenLocal": true,
+    "boardSize": 1000,
+    "onlyListenLocal": false,
     "trustProxyDepth": 1, // How many levels of proxy to trust for IP
     "debug": false,
     "googleAnalyticsTrackingID": "", // UA-XXXXXXXX-XX
     "host": "https://canvas.place", // the publicly accessible URL of the site
-    "placeTimeout": 1,
+    "placeTimeout": 10,
     'enableChangelogs': true,
     'siteName': 'Place',
     // "raven": "",
