@@ -1,0 +1,13 @@
+.wish-popover#wish-popover 
+    .wish-popover-close(data-place-trigger="closeWishPopover")
+    .wish-popover-hd 我的心愿
+    .wish-popover-bd 
+        textarea.wish-input#wish-content(placeholder='即将到来的2021，我希望...')
+        .wish-img
+        .wish-owner
+            .wish-owner-avatar
+                img(src=`https://avatars.dicebear.com/4.5/api/male/${Math.random().toString(36).slice(-5)}.svg?background=%23fff`)
+            .wish-owner-nick Gongxin
+    .wish-popover-ft
+        .wish-button#login-in(data-place-trigger="login") 写好了
+        .wish-msg 愿望将会留在你点亮的地方，向所有人展示。 

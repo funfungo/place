@@ -4,6 +4,7 @@
 //  Written by THE WHOLE DYNASTIC CREW. Inspired by Reddit's /r/place.
 //
 
+
 var size;
 
 var SignInDialogController = DialogController($("#sign-in-dialog"));
@@ -219,6 +220,8 @@ var place = {
         $(this.colourPaletteElement).on("click", ".colour-option", function () {
             var colourID = parseInt($(this).data("colour"));
             if (colourID) app.selectColour(colourID);
+            console.log(colourID);
+            $("#pixel-data-ctn").hide();
         });
         $(this.colourPaletteElement).click(function (e) {
             if (e.target !== this) return;
@@ -467,7 +470,7 @@ var place = {
                     app.hashHandler.modifyHash(coord);
                 }
             }).on("tap", (event) => {
-                //TODO 修改点击缩放事件
+                //DONE 修改点击缩放事件
                 if (event.interaction.downEvent.button == 2) return event.preventDefault();
                 if (this.zooming.zoomedIn || this.selectedColour !== null) {
                     var cursor = app.getCanvasCursorPosition(event.pageX, event.pageY);
@@ -637,7 +640,7 @@ var place = {
     setupColours: function () {
         var overlay = $("#availability-loading-modal");
         $(this.colourPaletteElement).find(".colour-option, .palette-separator").remove();
-        var contentContainer = $(this.colourPaletteElement).find("#palette-content-ctn");
+        var contentContainer = $(this.colourPaletteElement).find("#palette-content-ctn-color");
         this.colourPaletteOptionElements = [];
         if (this.colours) {
             overlay.hide();
@@ -1152,7 +1155,7 @@ var place = {
 
     zoomIntoPoint: function (x, y, actuallyZoom = true) {
         this.zooming.panToX = -(x - size / 2);
-        this.zooming.panToY = -(y - size / 2);
+        this.zooming.panToY = -(y + 2 - size / 2);
 
         this.zooming.panFromX = this.panX;
         this.zooming.panFromY = this.panY;
@@ -1163,7 +1166,6 @@ var place = {
     canvasClicked: function (x, y, event) {
         var app = this;
         this.stat();
-
         function getUserInfoTableItem(title, value) {
             var ctn = $("<div>").addClass("field");
             $("<span>").addClass("title").text(title).appendTo(ctn);
@@ -1205,8 +1207,15 @@ var place = {
                 popover.find("#pixel-data-x").text(x.toLocaleString());
                 popover.find("#pixel-data-y").text(y.toLocaleString());
                 let message = data.pixel.message || "希望2021一切顺利，世界和平";
-                console.log(message);
-                popover.find("#pixel-message").text(message);
+                popover.find("#pixel-info-wish").text(message);
+                popover.find("#pixel-info-owner").text(hasUser ? data.pixel.user.username : this.getUserStateText(data.pixel.userError));
+                popover.find("#message-info").css({
+                    "border-color": `#${data.pixel.colour}`
+                })
+                popover.find("#wishOwner").attr("src", `https://avatars.dicebear.com/4.5/api/male/${data.pixel.user.username}.svg?background=%23fff`);
+                // popover.find("#pixelShare").css({
+                //     "color": `#${data.pixel.colour==="ffffff"? "ccc": data.pixel.colour}`
+                // })
                 popover.find("#pixel-colour-code").text(`#${data.pixel.colour.toUpperCase()}`);
                 popover.find("#pixel-colour-preview").css("background-color", `#${data.pixel.colour}`);
                 if (data.pixel.colour.toLowerCase() == "ffffff") popover.find("#pixel-colour-preview").addClass("is-white");
@@ -1246,8 +1255,17 @@ var place = {
         if (this.selectedColour !== null && !this.placing) {
             this.changePlacingModalVisibility(true);
             var hex = this.getCurrentColourHex();
-            // DONE:插入输入框逻辑
+            // TODO:插入输入框逻辑
             var origin;
+            // 设置信息框动态内容
+            // hex = hex == "#FFFFFF" ? "#ccc": hex
+            $("#message-container").css({
+                "border-color": hex
+            })
+            // $("#message-hd").css({
+            //     "color": hex
+            // })
+            $("#messageNick").text()
             this.getPixel(x, y, (err, data) => {
                 origin = data.pixel;
                 this.placing = true;
@@ -1257,7 +1275,6 @@ var place = {
                 $(this.messageDialog).show();
             })
             $("#message-cancel").off("click").on("click", () => {
-                console.log("click")
                 if (origin) {
                     this.setPixel("#" + origin.colour, x, y);
                 } else {
@@ -1267,12 +1284,11 @@ var place = {
                 $(this.messageDialog).hide();
                 this.changePlacingModalVisibility(false);
                 this.changeSelectorVisibility(false);
-                $("#message-content")[0].value = "";
-                this.selectedColour = null;
+                this.deselectColour();
             })
 
             $("#message-send").off("click").on("click", () => {
-                let msg = $("#message-content")[0].value;
+                let msg = $("#message-wish").text();
                 placeAjax.post("/api/place", {
                     x: x,
                     y: y,
@@ -1280,12 +1296,10 @@ var place = {
                     message: msg
                 }, "An error occurred while trying to place your pixel.", () => {
                     this.changePlacingModalVisibility(false);
-                    $("#message-content")[0].value = "";
                     this.placing = false;
                 }).then((data) => {
                     this.popoutController.loadActiveUsers();
                     this.changeSelectorVisibility(false);
-
                     if (data.timer) this.doTimer(data.timer);
                     else this.updatePlaceTimer();
                     $(this.messageDialog).hide();
@@ -1627,20 +1641,28 @@ if (hashKeys.indexOf("signin") > 0 || hashKeys.indexOf("logintext") > 0) {
 
 $("*[data-place-trigger]").click(function () {
     var trigger = $(this).data("place-trigger");
-    if (trigger == "openSignInDialog") {
-        SignInDialogController.show("sign-in");
-    } else if (trigger == "openSignUpDialog") {
-        SignInDialogController.show("sign-up");
-    } else if (trigger == "openAuthDialog") {
-        SignInDialogController.show();
-    } else if (trigger == "login") {
+    // if (trigger == "openSignInDialog") {
+    //     SignInDialogController.show("sign-in");
+    // } else if (trigger == "openSignUpDialog") {
+    //     SignInDialogController.show("sign-up");
+    // } else if (trigger == "openAuthDialog") {
+    //     SignInDialogController.show();
+    // }
+    if (trigger == "login") {
         //DONE 创建用户
-        placeAjax.post("/api/signup", () => {}).then((data) => {
-            console.log(data);
+        let wish = $("#wish-content")[0].value || "世界和平！";
+        placeAjax.post("/api/signup", {
+            wish
+        }, () => {}).then((data) => {
             if (data.success) {
                 window.location.reload(true);
             }
         })
+    } else if (trigger == "makeAWish") {
+        $("#wish-popover").addClass("show");
+    } else if (trigger == "closeWishPopover") {
+        $("#wish-popover").removeClass("show");
+        $("#wish-content")[0].value = "";
     }
 });
 

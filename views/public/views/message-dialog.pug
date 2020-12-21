@@ -1,7 +1,14 @@
 #message-dialog
-    .message-container
-        .message-title 你的愿望
-        textarea.message-input#message-content
+    .message-mask
+    .message-color
+    .message-container#message-container
+        .message-hd#message-hd 将愿望藏在这里
+        .message-owner
+            .wish-owner-avatar
+                 img(src=`https://avatars.dicebear.com/4.5/api/male/${Math.random().toString(36).slice(-5)}.svg?background=%23fff`)
+            .message-owner-nick#messageNick #{user.name||""}
+            .message-wish-edit
+        .message-wish#message-wish #{user.wish||"世界和平！"}
         .message-send
-            .btn.btn-default#message-cancel 取消
-            .btn.btn-default#message-send   发送
+            #message-cancel 取消
+            #message-send   发送

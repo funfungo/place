@@ -7,7 +7,8 @@
             span.text Loading…
     .canvas-container
         include pixel-data
-        include message-dialog
+        if user
+            include message-dialog
         .button-ctn
             .popout-btns
                 .popout-control.control.btn.btn-default(data-tab-name="chat"): i.fa.fa-comments.fa-fw
@@ -54,16 +55,19 @@
                             span.menu-heading Warps
                             #warps-ctn Loading warps…
                     #palette-content-ctn
-                        .overlay#sign-in-reminder
+                        .overlay#sign-in-reminder(data-place-trigger="makeAWish") 许个心愿，点亮2021
                             //- TODO 加入登录
-                            span #[a#login-in(data-place-trigger="login") 参与创作]
+                            //- .overlay-notice #[a#login-in(data-place-trigger="login") 许个心愿，点亮2021]
+                            //- .overlay-notice #[div#give-a-wish(data-place-trigger="wish") ]
                             //- span #[a#overlay-sign-in(data-place-trigger="openSignInDialog", href="javascript:void(0)") Sign in] or #[a#overlay-sign-up(data-place-trigger="openSignUpDialog", href="javascript:void(0)") sign up] to start placing!
                         .overlay#placing-modal Placing…
                         .overlay#place-timer: span
                         .overlay#availability-loading-modal
+                        #palette-content-ctn-color
         canvas#place-canvas(height="100%", width="100%")
         #zoom-controller
             #camera-controller
                 #template-images
                 canvas#place-canvas-draw(height=config.boardSize, width=config.boardSize)
     include popout-container
+    include wish-popover

@@ -17,6 +17,9 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
+    wish: {
+        type: String
+    },
     creationDate: {
         type: Date,
         required: true
@@ -231,7 +234,7 @@ UserSchema.statics.getPasswordError = function(password) {
     // return password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])$/) && password.length >= 8 ? null : "That password cannot be used. Passwords are required to contain at least one digit, one uppercase letter, one lowercase letter, and be at least 8 characters in length.";
 }
 
-UserSchema.statics.register = function(username, password, app, callback, OAuthID, OAuthName) {
+UserSchema.statics.register = function(username, password, wish, app, callback, OAuthID, OAuthName) {
     if (!OAuthID && !this.isValidUsername(username)) return callback(null, {
         message: "That username cannot be used. Usernames must be 3-20 characters in length and may only consist of letters, numbers, underscores, and dashes.",
         code: "username_taken",
@@ -252,7 +255,8 @@ UserSchema.statics.register = function(username, password, app, callback, OAuthI
         let newUser = Schema({
             name: username,
             usernameSet: !OAuthID, // Opposite of OAuth will give us false which is what we need
-            password: "123",
+            password: password,
+            wish: wish,
             creationDate: Date(),
             admin: false,
             isOauth: !!OAuthID,

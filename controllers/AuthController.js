@@ -97,7 +97,7 @@ exports.postSignUp = (req, res, next) => {
     }
 
     function doSignup() {
-        User.register(req.body.username, req.body.password, req.place, function (user, error) {
+        User.register(req.body.username, req.body.password, req.body.wish, req.place, function (user, error) {
             if (!user) return sendError(error);
             user.recordAccess(req);
             if (req.body.keepSignedIn) req.session.maxAge = 1000 * 60 * 60 * 24 * 7; // keep signed in for 7 days
