@@ -138,8 +138,8 @@ var place = {
         zoomHandle: null,
         fastZoom: false,
         initialZoomPoint: 4,
-        zoomedInPoint: 40,
-        snapPoints: [0, 4, 40, 80],
+        zoomedInPoint: 30,
+        snapPoints: [0, 4, 30],
         zoomScale: 4,
         wasZoomedFullyOut: false
     },
@@ -761,7 +761,8 @@ var place = {
         if (this.zooming.zoomTime >= 100) {
             this.zoomFinished();
             if (this.shouldShowPopover) {
-                $(this.pixelDataPopover).fadeIn(250);
+                // $(this.pixelDataPopover).fadeIn(250);
+                $("#pixel-data-card").fadeIn(250);
                 this.shouldShowPopover = false;
             }
             if (callback) callback();
@@ -822,13 +823,12 @@ var place = {
 
         if (newScale >= 30) {
             $(this.grid).addClass("show");
+            this.zooming.zoomedIn = true;
         } else {
             $(this.grid).removeClass("show");
-        }
-        if (newScale >= 20) this.zooming.zoomedIn = true;
-        else {
             this.zooming.zoomedIn = false;
         }
+            
         if (animated) {
             this.zooming.zoomTime = 0;
             this.zooming.zoomFrom = this._getCurrentZoom();
@@ -1161,8 +1161,9 @@ var place = {
 
     zoomIntoPoint: function (x, y, actuallyZoom = true) {
         this.zooming.panToX = -(x - size / 2);
-        this.zooming.panToY = -(y + 2 - size / 2);
-
+       
+        this.zooming.panToY = -(y + 4 - size / 2);
+        console.log(this.zooming.panToY);
         this.zooming.panFromX = this.panX;
         this.zooming.panFromY = this.panY;
 
@@ -1200,10 +1201,30 @@ var place = {
         //TODO:添加展示祝福
         if (this.selectedColour === null) {
             this.zoomIntoPoint(x, y);
-
             return this.getPixel(x, y, (err, data) => {
                 if (err || !data.pixel) return;
-                var popover = $(this.pixelDataPopover);
+                // var popover = $(this.pixelDataPopover);
+                var popover = $("#pixel-data-card");
+                $("#pixelDataClose").off("click").on("click", ()=>{
+                    popover.fadeOut(250);
+                })
+                popover.find("#pixelPlaceholder").css({
+                    "background-color": `#${data.pixel.colour}`
+                })
+                let total = ~~(1 + Math.random() * 20);
+                $("#pixelTotal").text(total);
+                popover.removeClass("multi");
+                if(total!=1){
+                    popover.addClass("multi");
+                    let color = this.colours[~~(Math.random()*16)];
+                    popover.find("#fake1").css({
+                        "border-color": color
+                    })
+                    color = this.colours[~~(Math.random()*16)];
+                    popover.find("#fake2").css({
+                        "border-color": color
+                    })
+                }
                 if (this.zooming.zooming) this.shouldShowPopover = true;
                 else popover.fadeIn(250);
                 var hasUser = !!data.pixel.user;
@@ -1219,9 +1240,10 @@ var place = {
                 let message = data.pixel.message || "希望2021一切顺利，世界和平";
                 popover.find("#pixel-info-wish").text(message);
                 popover.find("#pixel-info-owner").text(hasUser ? data.pixel.user.username : this.getUserStateText(data.pixel.userError));
-                popover.find("#message-info").css({
+                popover.find("#message-card").css({
                     "border-color": `#${data.pixel.colour}`
                 })
+                popover.find("#pixelCoord").text(`(${x.toLocaleString()},${y.toLocaleString()})`)
                 popover.find("#wishOwner").attr("src", `https://avatars.dicebear.com/4.5/api/human/${data.pixel.user.username}.svg?background=%23fff`);
                 popover.find("#pixelImg").css({
                     "background-image": `url('https://picsum.photos/seed/${data.pixel.user.username}/500/200')`
