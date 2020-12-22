@@ -179,6 +179,7 @@ body {
 #palette.full-canvas {
     display: none;
 }
+
 #palette-content-ctn {
     overflow-x: auto;
     overflow-y: hidden;
@@ -190,6 +191,7 @@ body {
     padding-bottom: calc(20px + constant(safe-area-inset-bottom));
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
+
 .content .section.clickable {
     cursor: pointer;
 }
@@ -1634,51 +1636,62 @@ body #popout-container {
     transform: translate(-50%, 0);
     margin-top: -40px;
     font-size: 15px;
-    
+    overflow: hidden;
 }
-.pixel-info{
+
+.pixel-info {
     background-color: #fff;
-    border-radius: 30px;
 }
-#message-info {
+
+
+
+#pixelImg {
     position: relative;
-    margin-top: -70px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 100px;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
-#message-info .pixel-info{
-    padding-bottom: 0;
-}
-#message-info::before{
-    position: absolute;
-    left: 50%;
+
+#pixelImg::after {
     content: "";
-    width: 20px;
-    height: 20px;
-    border: none;
-    border-top: 4px solid transparent;
-    border-left: 4px solid transparent;
-    border-color: inherit;
-    transform: rotate(45deg) translateX(-50%);
-    top: -6px;
-    background-color: #fff;
-    border-radius: 2px;
-    margin-top: 0;
-    margin-left: 0;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: -1px;
+    background-color: rgba(0, 0, 0, 0.05);
 }
-#message-info::after{
-    display: none
-}
-.pixel-info-img img{
-    max-width: 100%;
-}
-#pixel-info-wish{
+
+#pixel-info-wish {
     margin-bottom: 8px;
 }
-.pixel-info-share{
-    padding: 16px 0;
-    text-align: center;
-    font-size: 17px;
+
+#pixel-info {
+    padding: 0;
+    border: none;
 }
+
+.pixel-info-share {
+    color: #fff;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+    -webkit-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E  %3Cpath fill-opacity='.9' fill-rule='evenodd' d='M12.618 2.124l.094.083 2.828 2.829-1.06 1.06-1.73-1.73V7h-1.5v6.5h1.5V7h6.251c.55 0 .999.446.999.996v13.008a.998.998 0 0 1-.996.996H4.996A.998.998 0 0 1 4 21.004V7.996A1 1 0 0 1 4.999 7h6.251V4.375l-1.72 1.72-1.06-1.06 2.828-2.829a1 1 0 0 1 1.32-.083z'/%3E%3C/svg%3E") no-repeat 50% 50%;
+    mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E  %3Cpath fill-opacity='.9' fill-rule='evenodd' d='M12.618 2.124l.094.083 2.828 2.829-1.06 1.06-1.73-1.73V7h-1.5v6.5h1.5V7h6.251c.55 0 .999.446.999.996v13.008a.998.998 0 0 1-.996.996H4.996A.998.998 0 0 1 4 21.004V7.996A1 1 0 0 1 4.999 7h6.251V4.375l-1.72 1.72-1.06-1.06 2.828-2.829a1 1 0 0 1 1.32-.083z'/%3E%3C/svg%3E") no-repeat 50% 50%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: currentColor;
+}
+
+.message-bd {
+    padding: 40px 28px;
+}
+
 .message-container {
     min-width: 334px;
     padding: 16px 24px 0;
@@ -1893,4 +1906,105 @@ body #popout-container {
     margin-top: 16px;
     font-size: 14px;
     color: rgba(0, 0, 0, 0.5);
+}
+
+.intro {
+    z-index: 2;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    transition: all .3;
+    opacity: 1;
+}
+
+.intro-mask {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: all .3;
+    opacity: 1;
+}
+
+.fade {
+    visibility: hidden;
+}
+
+.intro-tips {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 40px;
+    border-radius: 20px;
+    bottom: calc(100px + constant(safe-area-inset-bottom));
+    bottom: calc(100px + env(safe-area-inset-bottom));
+    background-image: linear-gradient(-180deg, rgba(241, 241, 241, 0.8) 0%, rgba(227, 227, 227, 0.8) 100%);
+    backdrop-filter: blur(12px);
+    opacity: 1;
+    transition: all .3;
+}
+
+#pixel-data-card {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 10;
+    display: none;
+}
+
+.pixel-data-mask {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.pixel-data-close {
+    position: absolute;
+    left: 24px;
+    top: 54px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 36px;
+    height: 36px;
+    -webkit-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E  %3Cpath fill='%23FFF' fill-rule='evenodd' d='M18 3c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-8.284 0-15-6.716-15-15C3 9.716 9.716 3 18 3zm0 1.8C10.71 4.8 4.8 10.71 4.8 18c0 7.29 5.91 13.2 13.2 13.2 7.29 0 13.2-5.91 13.2-13.2 0-7.29-5.91-13.2-13.2-13.2zm4.667 7.26l1.273 1.273L19.273 18l4.667 4.668-1.273 1.273L18 19.27l-4.667 4.669-1.273-1.273 4.667-4.668-4.667-4.666 1.273-1.273L18 16.726l4.667-4.666z' opacity='.3'/%3E%3C/svg%3E") no-repeat 50% 50%;
+    mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E  %3Cpath fill='%23FFF' fill-rule='evenodd' d='M18 3c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-8.284 0-15-6.716-15-15C3 9.716 9.716 3 18 3zm0 1.8C10.71 4.8 4.8 10.71 4.8 18c0 7.29 5.91 13.2 13.2 13.2 7.29 0 13.2-5.91 13.2-13.2 0-7.29-5.91-13.2-13.2-13.2zm4.667 7.26l1.273 1.273L19.273 18l4.667 4.668-1.273 1.273L18 19.27l-4.667 4.669-1.273-1.273 4.667-4.668-4.667-4.666 1.273-1.273L18 16.726l4.667-4.666z' opacity='.3'/%3E%3C/svg%3E") no-repeat 50% 50%;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+#message-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    width: 295px;
+    border-radius: 30px;
+    background: #fff;
+    border: 4px solid #ddd;
+}
+
+#message-info .pixel-info {
+    padding-bottom: 0;
+}
+
+#message-info::before {
+    display: none;
+}
+
+#message-info::after {
+    display: none
 }

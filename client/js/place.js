@@ -188,6 +188,11 @@ var place = {
     },
 
     start: function (canvas, zoomController, cameraController, displayCanvas, colourPaletteElement, coordinateElement, userCountElement, gridHint, pixelDataPopover, grid, messageDialog) {
+        // 获取cookie
+        if (!getCookie("firstPlace") || getCookie("firstPlace") === "0") {
+            $("#intro").removeClass("fade")
+        }
+
         // Setup sizes
         size = canvas.height;
         $(cameraController).css({
@@ -220,8 +225,9 @@ var place = {
         $(this.colourPaletteElement).on("click", ".colour-option", function () {
             var colourID = parseInt($(this).data("colour"));
             if (colourID) app.selectColour(colourID);
-            console.log(colourID);
             $("#pixel-data-ctn").hide();
+            $("#intro-mask").addClass("fade");
+            $("#intro-tips").text("选一个区域进行点亮");
         });
         $(this.colourPaletteElement).click(function (e) {
             if (e.target !== this) return;
@@ -471,12 +477,12 @@ var place = {
                 }
             }).on("tap", (event) => {
                 //DONE 修改点击缩放事件
+                event.preventDefault();
                 if (event.interaction.downEvent.button == 2) return event.preventDefault();
                 if (this.zooming.zoomedIn || this.selectedColour !== null) {
                     var cursor = app.getCanvasCursorPosition(event.pageX, event.pageY);
                     app.canvasClicked(cursor.x, cursor.y);
                 }
-                event.preventDefault();
             }).on("doubletap", (event) => {
                 event.preventDefault();
                 if (!this.zooming.zoomedIn) {
@@ -885,20 +891,20 @@ var place = {
     },
 
     setCoordinatesButton: function (btn) {
-        if (Clipboard.isSupported()) {
-            var app = this;
-            var clipboard = new Clipboard(btn);
-            $(btn).addClass("clickable").tooltip({
-                title: "已复制到剪切板",
-                trigger: "manual",
-            });
-            clipboard.on("success", function (e) {
-                $(btn).tooltip("show");
-                setTimeout(function () {
-                    $(btn).tooltip("hide");
-                }, 2500);
-            })
-        }
+        // if (Clipboard.isSupported()) {
+        //     var app = this;
+        //     var clipboard = new Clipboard(btn);
+        //     $(btn).addClass("clickable").tooltip({
+        //         title: "已复制到剪切板",
+        //         trigger: "manual",
+        //     });
+        //     clipboard.on("success", function (e) {
+        //         $(btn).tooltip("show");
+        //         setTimeout(function () {
+        //             $(btn).tooltip("hide");
+        //         }, 2500);
+        //     })
+        // }
     },
 
     moveCamera: function (deltaX, deltaY, softAllowBoundPush = true) {
@@ -1166,6 +1172,10 @@ var place = {
     canvasClicked: function (x, y, event) {
         var app = this;
         this.stat();
+        if(this.selectedColour !== null){
+            $("#intro-tips").text("用心愿点亮一个格子");
+        }
+
         function getUserInfoTableItem(title, value) {
             var ctn = $("<div>").addClass("field");
             $("<span>").addClass("title").text(title).appendTo(ctn);
@@ -1212,10 +1222,10 @@ var place = {
                 popover.find("#message-info").css({
                     "border-color": `#${data.pixel.colour}`
                 })
-                popover.find("#wishOwner").attr("src", `https://avatars.dicebear.com/4.5/api/male/${data.pixel.user.username}.svg?background=%23fff`);
-                // popover.find("#pixelShare").css({
-                //     "color": `#${data.pixel.colour==="ffffff"? "ccc": data.pixel.colour}`
-                // })
+                popover.find("#wishOwner").attr("src", `https://avatars.dicebear.com/4.5/api/human/${data.pixel.user.username}.svg?background=%23fff`);
+                popover.find("#pixelImg").css({
+                    "background-image": `url('https://picsum.photos/seed/${data.pixel.user.username}/500/200')`
+                });
                 popover.find("#pixel-colour-code").text(`#${data.pixel.colour.toUpperCase()}`);
                 popover.find("#pixel-colour-preview").css("background-color", `#${data.pixel.colour}`);
                 if (data.pixel.colour.toLowerCase() == "ffffff") popover.find("#pixel-colour-preview").addClass("is-white");
@@ -1253,18 +1263,16 @@ var place = {
 
         if (wasZoomedOut) return;
         if (this.selectedColour !== null && !this.placing) {
+            setCookie("firstPlace", 1);
+            $("#intro").addClass("fade");
             this.changePlacingModalVisibility(true);
             var hex = this.getCurrentColourHex();
             // TODO:插入输入框逻辑
             var origin;
             // 设置信息框动态内容
-            // hex = hex == "#FFFFFF" ? "#ccc": hex
             $("#message-container").css({
                 "border-color": hex
             })
-            // $("#message-hd").css({
-            //     "color": hex
-            // })
             $("#messageNick").text()
             this.getPixel(x, y, (err, data) => {
                 origin = data.pixel;
@@ -1625,7 +1633,6 @@ $("#user-count").click(function () {
 });
 
 var hash = hashHandler.getHash();
-console.log(hash)
 var hashKeys = Object.keys(hash);
 if (hashKeys.indexOf("signin") > 0 || hashKeys.indexOf("logintext") > 0) {
     if (hashKeys.indexOf("logintext") > 0) {
@@ -1667,6 +1674,7 @@ $("*[data-place-trigger]").click(function () {
 });
 
 if (place.isSignedIn()) {
+
     var changelogController = {
         contentElement: $("#changelog-content"),
         changelogs: null,
@@ -1765,3 +1773,21 @@ $(document).ready(function () {
 });
 
 $("#nav-help > a").click(() => HelpDialogController.show());
+
+
+function getCookie(name) {
+    var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+
+    if (arr = document.cookie.match(reg))
+
+        return unescape(arr[2]);
+    else
+        return null;
+}
+
+function setCookie(name, value) {
+    // var Days = 30;
+    // var exp = new Date();
+    // exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);
+    document.cookie = name + "=" + escape(value);
+}

@@ -31,8 +31,12 @@
                 input.value#colour-picker-hex-value(value="#D66668", maxlength="7", autocomplete="off", autocorrect="off", autocapitalizae="off", spellcheck="false", tabindex="-1")
         #grid
         #grid-hint
-        #palette-ctn
-            .ctn-row
+        if user
+            .intro#intro.fade
+                .intro-mask#intro-mask
+                .intro-tips#intro-tips 为你的心愿选一个颜色
+        #palette-ctn         
+            //- .ctn-row
                 .content.compact
                     if user
                         //- button#palette-expando.section.clickable
@@ -68,6 +72,6 @@
         #zoom-controller
             #camera-controller
                 #template-images
-                canvas#place-canvas-draw(height=config.boardSize, width=config.boardSize)
+                canvas#place-canvas-draw(height=config.boardSize, width=config.boardSize)        
     include popout-container
     include wish-popover
