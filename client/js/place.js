@@ -1288,17 +1288,34 @@ var place = {
             setCookie("firstPlace", 1);
             $("#intro").addClass("fade");
             this.changePlacingModalVisibility(true);
+            var message = $("#message-dialog");
             var hex = this.getCurrentColourHex();
             // TODO:插入输入框逻辑
             var origin;
             // 设置信息框动态内容
-            $("#message-container").css({
+            message.find("#message-container").css({
                 "border-color": hex
             })
-            $("#messageNick").text()
+            if(hex == "#FFFFFF"){
+                message.find("#message-send").css({
+                    "color": "#000"
+                })
+            }else{
+                message.find("#message-send").css({
+                    "color": "#fff"
+                })
+            }
+            message.find("#messageNick").text()
+            message.find("#message-send").css({
+                "background": hex
+            })
+            message.find("#pixelPlaceholder").css({
+                "background": hex
+            })
             this.getPixel(x, y, (err, data) => {
                 origin = data.pixel;
                 this.placing = true;
+                message.find("#pixelCoord").text(`(${x}, ${y})`);
                 this.zoomIntoPoint(x, y);
                 this.setPixel(hex, x, y);
                 this.changeSelectorVisibility(false);

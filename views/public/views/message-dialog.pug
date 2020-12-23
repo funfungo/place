@@ -1,14 +1,16 @@
-#message-dialog
-    .message-mask
-    .message-color
+.pixel-data-card#message-dialog
+    .pixel-data-mask 
+    .pixel-data-close#message-cancel
+    .pixel-placeholder#pixelPlaceholder
+        .pixel-coord#pixelCoord
     .message-container#message-container
-        .message-hd#message-hd 将愿望藏在这里
-        .message-owner
-            .wish-owner-avatar
-                 img(src=`https://avatars.dicebear.com/4.5/api/male/${Math.random().toString(36).slice(-5)}.svg?background=%23fff`)
-            .message-owner-nick#messageNick #{user.name||""}
+        //- .message-hd#message-hd 将愿望藏在这里
+        .message-bd#messageWishEdit
             .message-wish-edit
-        .message-wish#message-wish #{user.wish||"世界和平！"}
+            .message-owner
+                .wish-owner-avatar
+                    img(src=`https://avatars.dicebear.com/4.5/api/male/${Math.random().toString(36).slice(-5)}.svg?background=%23fff`)
+                .message-owner-nick#messageNick #{user.name||""}
+            .message-wish#message-wish #{user.wish||"世界和平！"}
         .message-send
-            #message-cancel 取消
-            #message-send   发送
+            #message-send   点亮这里
