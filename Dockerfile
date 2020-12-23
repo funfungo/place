@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json yarn.lock ./
 
 # Install app dependencies
-RUN npm install
+RUN npm install --registry=https://registry.npm.taobao.org
 
 # Bundle app source
 COPY . .

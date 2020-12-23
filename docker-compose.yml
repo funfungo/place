@@ -7,6 +7,8 @@ services:
       - "127.0.0.1:4000:3000"
     depends_on:
       - "db"
+    volumes: 
+      - ./.place-data:/user/src/app/.place-data
     environment:
       NODE_ENV: "production"
       DATABASE: "mongodb://db/place"
