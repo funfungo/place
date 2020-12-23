@@ -1074,8 +1074,9 @@ var place = {
                     seconds = time - minutes * 60;
                 var formattedTime = `${minutes}:${padLeft(seconds.toString(), "0", 2)}`;
                 document.title = `[${formattedTime}] | ${this.originalTitle}`;
-                var shouldShowNotifyButton = !this.notificationHandler.canNotify() && this.notificationHandler.isAbleToRequestPermission();
-                $(this.placeTimer).children("span").html("你可以在 <strong>" + formattedTime + "</strong>后继续操作." + (shouldShowNotifyButton ? " <a href=\"#\" id=\"notify-me\">Notify me</a>." : ""));
+                // var shouldShowNotifyButton = !this.notificationHandler.canNotify() && this.notificationHandler.isAbleToRequestPermission();
+                var shouldShowNotifyButton = false;
+                $(this.placeTimer).children("span").html("你可以在 <strong>" + formattedTime + "</strong>后再次点亮..." + (shouldShowNotifyButton ? " <a href=\"#\" id=\"notify-me\">Notify me</a>." : ""));
                 return;
             } else if (this.fullUnlockTime > 5) { // only notify if full countdown exceeds 5 seconds
                 this.notificationHandler.sendNotification(this.getSiteName(), "You may now place!");
