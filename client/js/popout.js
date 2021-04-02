@@ -24,18 +24,6 @@ function PopoutVisibilityController(popoutContainer) {
                     window.close();
                 } else {
                     console.log(p.activeTab);
-                    var w = window.open("/popout#" + p.activeTab, "Place_Popout", "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=350,height=" + window.height);
-                    if (window.focus) {w.focus()}
-                    $("body").addClass("popped-out");
-                    if(p.visibilityChangeCallback) p.visibilityChangeCallback();
-                    w.onunload = function() {
-                        setTimeout(function() {
-                            if(w.closed) {
-                                $("body").removeClass("popped-out");
-                                if(p.visibilityChangeCallback) p.visibilityChangeCallback();
-                            }
-                        }, 1);
-                    }
                 }
             });
         },

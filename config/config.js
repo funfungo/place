@@ -1,7 +1,7 @@
 module.exports = {
     "secret": "CHANGETHISDONTUSETHISITSINSECURE", // <------- CHANGE THIS DONT USE THE DEFAULT YOU'LL GET HACKED AND DIE 100%
     "database": "mongodb://localhost/place",
-    "port": 3000,
+    "port": 8080,
     "boardSize": 500,
     "onlyListenLocal": false,
     "trustProxyDepth": 1, // How many levels of proxy to trust for IP
